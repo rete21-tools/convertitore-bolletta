@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convertitore Bolletta × be — cb02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --verde:#27ae60;--verde-dark:#1e8449;
+  --blu:#2980b9;--blu-dark:#1f5f8b;--blu-light:#ebf5fb;
+  --arancio:#d35400;--arancio-dark:#a04000;--arancio-light:#fff8ed;
+  --rosso:#c0392b;--rosso-light:#fdf0ed;
+  --giallo:#f39c12;--giallo-light:#fef9e7;
+  --grigio-scuro:#414745;--grigio-medio:#6b7270;
+  --grigio-bg:#f5f5f3;--grigio-bordo:#dcddd9;
+  --bianco:#ffffff;
+  --shadow:0 2px 8px rgba(65,71,69,.08);
+  --shadow-hover:0 6px 20px rgba(65,71,69,.14);
+  --radius:10px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',Helvetica,Arial,sans-serif;color:var(--grigio-scuro);background:var(--bianco);line-height:1.6;font-size:15px}
+
+.status-bar{background:linear-gradient(90deg,#0f2d1a,#1a4a2a);border-bottom:2px solid #27ae60;padding:8px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.status-bar-dot{width:8px;height:8px;border-radius:50%;background:#27ae60;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.status-bar-text{font-size:11px;font-weight:700;color:#6ee7b7;letter-spacing:.3px}
+
+.topbar{background:var(--grigio-scuro);color:var(--bianco);font-size:12px;padding:7px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-badge{background:rgba(255,255,255,.15);border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.topbar-badge.elettrico{background:rgba(41,128,185,.4);border:1px solid rgba(41,128,185,.6)}
+.topbar-badge.fossile{background:rgba(211,84,0,.4);border:1px solid rgba(211,84,0,.6)}
+
+header.main{background:var(--bianco);border-bottom:4px solid var(--verde);padding:12px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.logo-area{display:flex;align-items:center;gap:14px}
+.r21-logo{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--grigio-scuro);border-radius:8px;padding:5px 12px;min-width:72px}
+.r21-logo .pow{font-size:7px;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase}
+.r21-logo .name{font-size:16px;font-weight:900;color:#fff;letter-spacing:1.5px;line-height:1}
+.header-text h1{font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.2}
+.header-text p{font-size:11px;color:var(--grigio-medio);margin-top:2px}
+.header-badges{display:flex;gap:6px;align-items:center}
+.hbadge{padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.hbadge.green{background:#d5f5e3;color:#1e8449;border:1px solid #7dcea0}
+.hbadge.gray{background:var(--grigio-bg);color:var(--grigio-medio);border:1px solid var(--grigio-bordo)}
+
+.tab-nav{background:var(--grigio-bg);border-bottom:2px solid var(--grigio-bordo);padding:0 28px;display:flex;gap:0}
+.tab-btn{padding:14px 24px;font-size:13px;font-weight:700;font-family:inherit;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;color:var(--grigio-medio);transition:all .2s;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:-2px}
+.tab-btn:hover{color:var(--grigio-scuro)}
+.tab-btn.active.elettrico{color:var(--blu-dark);border-bottom-color:var(--blu)}
+.tab-btn.active.fossile{color:var(--arancio-dark);border-bottom-color:var(--arancio)}
+.tab-icon{font-size:16px}
+
+.main-content{max-width:1100px;margin:0 auto;padding:28px 28px 60px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+.upload-section{margin-bottom:24px}
+.section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--grigio-medio);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--grigio-bordo)}
+
+.upload-zone{border:2px dashed var(--grigio-bordo);border-radius:var(--radius);padding:28px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--grigio-bg);position:relative;overflow:hidden}
+.upload-zone:hover{border-color:var(--blu);background:#f0f7fd}
+.upload-zone.fossile-zone:hover{border-color:var(--arancio);background:#fff5f0}
+.upload-zone.has-file{border-style:solid;border-color:var(--verde);background:#f0faf4;cursor:default}
+.upload-icon{font-size:36px;margin-bottom:10px;display:block}
+.upload-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.upload-sub{font-size:11.5px;color:var(--grigio-medio)}
+.upload-filename{font-size:12px;font-weight:700;color:var(--verde);margin-top:8px;display:none}
+.upload-zone.has-file .upload-filename{display:block}
+.upload-zone.has-file .upload-default{display:none}
+input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone.has-file input[type="file"]{pointer-events:none}
+
+.clear-file-btn{display:none;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;padding:9px;background:var(--rosso-light);color:var(--rosso);border:1.5px solid var(--rosso);border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:all .15s}
+.clear-file-btn:hover{background:#fbdcd8}
+.clear-file-btn.show{display:flex}
+
+.size-warning{background:var(--giallo-light);border-left:4px solid var(--giallo);color:#7d6608;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;margin-top:10px;display:none;line-height:1.5}
+.size-warning.show{display:block}
+
+.note-field{margin-bottom:24px}
+.note-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;color:var(--grigio-scuro)}
+.note-field textarea{width:100%;padding:12px 14px;border:2px solid var(--grigio-bordo);border-radius:8px;font-family:inherit;font-size:13px;line-height:1.6;resize:vertical;min-height:90px;color:var(--grigio-scuro);transition:border-color .2s}
+.note-field textarea:focus{outline:none;border-color:var(--blu)}
+.note-field.fossile textarea:focus{border-color:var(--arancio)}
+.note-hint{font-size:10.5px;color:var(--grigio-medio);margin-top:6px;font-style:italic;line-height:1.5}
+.note-examples{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.note-chip{padding:4px 10px;background:var(--grigio-bg);border:1px solid var(--grigio-bordo);border-radius:12px;font-size:10.5px;color:var(--grigio-medio);cursor:pointer;transition:all .15s}
+.note-chip:hover{background:#fff;border-color:var(--blu);color:var(--blu-dark)}
+.note-chip.fossile:hover{border-color:var(--arancio);color:var(--arancio-dark)}
+
+.generate-btn{width:100%;padding:16px 24px;background:var(--blu);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;justify-content:center;gap:10px}
+.generate-btn:hover{background:var(--blu-dark);transform:translateY(-1px);box-shadow:var(--shadow-hover)}
+.generate-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.generate-btn.fossile-btn{background:var(--arancio)}
+.generate-btn.fossile-btn:hover{background:var(--arancio-dark)}
+
+.section-divider{border:none;border-top:1px dashed var(--grigio-bordo);margin:24px 0}
+
+.conv-panel{background:var(--arancio-light);border:2px solid var(--arancio);border-radius:var(--radius);padding:20px 22px;margin-bottom:24px;display:none}
+.conv-panel.show{display:block}
+.conv-panel-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--arancio-dark);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.conv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.conv-field{display:flex;flex-direction:column;gap:4px}
+.conv-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--arancio-dark)}
+.conv-field-wrapper{display:flex;align-items:center;gap:6px}
+.conv-input{padding:8px 10px;border:2px solid #f0c08a;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;color:var(--grigio-scuro);background:#fff;width:100%;transition:all .2s}
+.conv-input:focus{outline:none;border-color:var(--arancio)}
+.conv-input[readonly]{background:#fef5e7;color:var(--arancio-dark);border-color:#f0d4b0}
+.conv-unit{font-size:10.5px;color:var(--grigio-medio);white-space:nowrap;min-width:52px}
+.lock-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:4px;transition:transform .15s;flex-shrink:0}
+.lock-btn:hover{transform:scale(1.15)}
+.conv-result-box{background:#fff;border:1px solid #f0d4b0;border-radius:8px;padding:14px 16px;margin-top:12px}
+.conv-result-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--arancio-dark);margin-bottom:10px}
+.conv-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.conv-kpi{text-align:center;padding:10px;background:var(--arancio-light);border-radius:6px;border:1px solid #f0c08a}
+.conv-kpi .kv{font-size:20px;font-weight:900;color:var(--arancio-dark);letter-spacing:-.3px}
+.conv-kpi .kl{font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--grigio-medio);margin-top:2px;font-weight:700}
+.conv-kpi.ok{background:#d5f5e3;border-color:#7dcea0}
+.conv-kpi.ok .kv{color:var(--verde-dark)}
+.conv-formula{background:#fff8f0;border-left:3px solid var(--arancio);padding:10px 12px;border-radius:0 6px 6px 0;font-size:11px;line-height:1.6;color:var(--grigio-scuro);margin-top:10px}
+.conv-formula strong{color:var(--arancio-dark)}
+.tipo-combustibile-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.fuel-pill{padding:8px 14px;border:2px solid var(--grigio-bordo);border-left:4px solid var(--grigio-bordo);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:all .15s;color:var(--grigio-scuro)}
+.fuel-pill:hover{border-color:var(--arancio);border-left-color:var(--arancio-dark);background:var(--arancio-light)}
+.fuel-pill.active{background:var(--arancio)!important;border-color:var(--arancio-dark)!important;border-left-color:#7a2e00!important;color:#fff!important;font-weight:800!important}
+
+.output-section{display:none;margin-top:28px}
+.output-section.show{display:block}
+.output-actions{display:flex;gap:8px;flex-wrap:wrap}
+.out-btn{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.5px;border:2px solid;display:flex;align-items:center;gap:6px}
+.out-btn.download{background:var(--verde);color:#fff;border-color:var(--verde-dark)}
+.out-btn.download:hover{background:var(--verde-dark)}
+.out-btn.copy{background:#fff;color:var(--grigio-scuro);border-color:var(--grigio-bordo)}
+.out-btn.copy:hover{border-color:var(--grigio-medio)}
+.out-btn.edit{background:var(--giallo-light);color:#7d6608;border-color:var(--giallo)}
+.out-btn.edit:hover{background:#fdefc3}
+.out-btn.save{background:var(--blu-light);color:var(--blu-dark);border-color:var(--blu);display:none}
+.out-btn.save:hover{background:#d6ebfa}
+
+.json-viewer{background:#1e2a38;border-radius:8px;padding:18px;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;color:#e2e8f0;overflow-x:auto;max-height:480px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.json-viewer textarea{background:#1e2a38;border:none;color:#e2e8f0;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;resize:vertical;min-height:300px;padding:0;margin:0;width:100%}
+.json-viewer textarea:focus{outline:2px solid var(--giallo)}
+.json-key{color:#93c5fd}
+.json-string{color:#86efac}
+.json-number{color:#fde68a}
+.json-bool{color:#f9a8d4}
+.json-null{color:#94a3b8}
+
+.note-estrazione-box{background:var(--blu-light);border:2px solid var(--blu);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px;font-size:12px;line-height:1.6;color:#1a4060;display:none}
+.note-estrazione-box.show{display:block}
+.note-estrazione-box.fossile-ne{background:var(--arancio-light);border-color:var(--arancio);color:var(--arancio-dark)}
+.note-estrazione-box .ne-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--blu-dark);margin-bottom:8px}
+.note-estrazione-box.fossile-ne .ne-title{color:var(--arancio-dark)}
+.note-estrazione-box .ne-body{font-size:12px;line-height:1.6}
+
+.alert{padding:12px 16px;border-radius:8px;font-size:12.5px;font-weight:600;display:none;margin-top:14px;line-height:1.5}
+.alert.show{display:block}
+.alert.error{background:var(--rosso-light);border-left:4px solid var(--rosso);color:var(--rosso)}
+.alert.success{background:#d5f5e3;border-left:4px solid var(--verde);color:var(--verde-dark)}
+.alert.warning{background:var(--giallo-light);border-left:4px solid var(--giallo);color:#7d6608}
+.alert.info{background:var(--blu-light);border-left:4px solid var(--blu);color:var(--blu-dark)}
+
+.progress-wrap{display:none;margin-top:16px}
+.progress-wrap.show{display:block}
+.progress-bar{height:6px;background:var(--grigio-bordo);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blu),#5dade2);border-radius:3px;transition:width .4s;width:0%}
+.progress-fill.fossile{background:linear-gradient(90deg,var(--arancio),#e59866)}
+.progress-label{font-size:11px;color:var(--grigio-medio);text-align:center}
+
+.panel{background:var(--bianco);border:1px solid var(--grigio-bordo);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.panel h3{font-size:13px;font-weight:800;margin-bottom:16px;padding-bottom:10px;border-bottom:3px solid var(--verde);text-transform:uppercase;letter-spacing:.6px}
+.panel h3.blue{border-bottom-color:var(--blu)}
+.panel h3.orange{border-bottom-color:var(--arancio)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+
+#toast{position:fixed;bottom:24px;right:24px;background:var(--grigio-scuro);color:#fff;padding:12px 20px;border-radius:10px;font-size:12.5px;font-weight:600;display:none;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:340px;line-height:1.4}
+
+.ai-loading{text-align:center;padding:28px;display:none}
+.ai-loading.show{display:block}
+.ai-spinner{font-size:32px;display:inline-block;animation:spin 1.2s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-loading-text{font-size:13px;font-weight:600;color:var(--grigio-medio);margin-bottom:6px}
+.ai-loading-sub{font-size:11px;color:var(--grigio-bordo)}
+
+.step-indicator{display:flex;gap:0;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid var(--grigio-bordo)}
+.step-item{flex:1;padding:10px 14px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--grigio-bg);color:var(--grigio-medio);border-right:1px solid var(--grigio-bordo)}
+.step-item:last-child{border-right:none}
+.step-item.done{background:#d5f5e3;color:var(--verde-dark)}
+.step-item.active.elec{background:var(--blu-light);color:var(--blu-dark)}
+.step-item.active.foss{background:var(--arancio-light);color:var(--arancio-dark)}
+.step-num{display:inline-block;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:900;background:var(--grigio-bordo);color:var(--grigio-medio);line-height:18px;margin-right:5px;vertical-align:middle}
+.step-item.done .step-num{background:var(--verde);color:#fff}
+.step-item.active.elec .step-num{background:var(--blu);color:#fff}
+.step-item.active.foss .step-num{background:var(--arancio);color:#fff}
+
+.disabled-overlay{pointer-events:none;opacity:.45}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <div class="status-bar-dot"></div>
+  <span class="status-bar-text">Convertitore Bolletta × be · cb02 · Rete21 · Servizio AI attivo</span>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span style="font-weight:700;letter-spacing:.3px">Convertitore Bolletta × be</span>
+    <span class="topbar-badge">cb02</span>
+    
+    <span class="topbar-badge elettrico">⚡ Elettrico</span>
+    <span class="topbar-badge fossile">🔥 Fossile</span>
+  </div>
+  <div style="font-size:11px;opacity:.7">Schema: Bilancio Energetico be16 · AI-Powered</div>
+</div>
+
+<header class="main">
+  <div class="logo-area">
+    <div class="r21-logo">
+      <div class="pow">powered by</div>
+      <div class="name">RETE<span style="font-weight:300">21</span></div>
+    </div>
+    <div class="header-text">
+      <h1>Convertitore Bolletta × be</h1>
+      <p>Estrazione AI da bolletta PDF → JSON import per Bilancio Energetico be16</p>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="hbadge green">be16</span>
+    <span class="hbadge gray">cb02</span>
+    <span class="hbadge gray" id="hbadge-date">—</span>
+  </div>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active elettrico" onclick="switchTab('elettrico')">
+    <span class="tab-icon">⚡</span> Bolletta Elettrica
+  </button>
+  <button class="tab-btn fossile" onclick="switchTab('fossile')">
+    <span class="tab-icon">🔥</span> Bolletta Fossile
+  </button>
+</div>
+
+<div class="main-content">
+
+  <div class="tab-pane active" id="pane-elettrico">
+
+    <div class="step-indicator" id="steps-elec">
+      <div class="step-item active elec" id="step-e1"><span class="step-num">1</span>Carica PDF</div>
+      <div class="step-item" id="step-e2"><span class="step-num">2</span>Note & Istruzioni</div>
+      <div class="step-item" id="step-e3"><span class="step-num">3</span>Genera JSON</div>
+      <div class="step-item" id="step-e4"><span class="step-num">4</span>Verifica & Scarica</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="panel" id="panel-input-e">
+          <h3 class="blue">⚡ Caricamento Bolletta Elettrica</h3>
+
+          <div class="upload-section">
+            <div class="section-label">File bolletta (PDF)</div>
+            <div class="upload-zone" id="upload-e" onclick="document.getElementById('file-e').click()">
+              <input type="file" id="file-e" accept=".pdf,.png,.jpg,.jpeg" onchange="onFileElec(this)">
+              <div class="upload-default">
+                <span class="upload-icon">📄</span>
+                <div class="upload-title">Trascina il PDF della bolletta elettrica</div>
+                <div class="upload-sub">oppure clicca per selezionare · PDF, PNG, JPG · max 5 MB</div>
+              </div>
+              <div class="upload-filename" id="filename-e">—</div>
+            </div>
+            <button class="clear-file-btn" id="clear-e" onclick="clearFile('e')">🗑 Rimuovi file e carica un'altra bolletta</button>
+            <div class="size-warning" id="size-warn-e"></div>
+          </div>
+
+          <div class="note-field">
+            <label>📝 Note e istruzioni per l'AI</label>
+            <textarea id="note-e" placeholder="Es: Bolletta multi-indirizzo — includere solo Via Reginato 13 (IT001E04774644, 15 kW) e Via Reginato 5 (IT001E31601267, 6 kW). Escludere il POD di Via Piave 120."></textarea>
+            <div class="note-hint">Specifica: POD da includere/escludere, indirizzi, avvertenze sul prezzo, note sull'annualizzazione.</div>
+            <div class="note-examples">
+              <span class="note-chip" onclick="addChip('e','Bolletta multi-POD: includere solo ___')">Multi-POD</span>
+              <span class="note-chip" onclick="addChip('e','Escludere il POD ___')">Escludi POD</span>
+              <span class="note-chip" onclick="addChip('e','Periodo bimestrale → annualizzare ×6')">Annualizza ×6</span>
+              <span class="note-chip" onclick="addChip('e','Utenza MT: compilare p_pot_cost e ps_kw')">Utenza MT</span>
+              <span class="note-chip" onclick="addChip('e','Nord Italia → y_spec 1050')">Nord Italia</span>
+              <span class="note-chip" onclick="addChip('e','Non separare F1/F2/F3: usare 50/20/30%')">Split F1F2F3</span>
+            </div>
+          </div>
+
+          <button class="generate-btn" id="btn-gen-e" onclick="generateElec()" disabled>
+            <span>⚡</span> Genera JSON Elettrico
+          </button>
+
+          <div class="progress-wrap" id="prog-e">
+            <div class="progress-bar"><div class="progress-fill" id="pbar-e"></div></div>
+            <div class="progress-label" id="plab-e">Analisi AI in corso…</div>
+          </div>
+
+          <div class="ai-loading" id="aiload-e">
+            <div class="ai-spinner">⚡</div>
+            <div class="ai-loading-text">L'AI sta analizzando la bolletta…</div>
+            <div class="ai-loading-sub">Attendere, può richiedere 20-40 secondi</div>
+          </div>
+
+          <div class="alert" id="alert-e"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel" id="output-panel-e" style="display:none">
+          <h3 class="blue">📦 JSON Generato — Elettrico</h3>
+
+          <div class="note-estrazione-box" id="note-estratta-e">
+            <div class="ne-title">📋 Note di estrazione AI</div>
+            <div class="ne-body" id="note-estratta-e-body"></div>
+          </div>
+
+          <div class="output-actions" style="margin-bottom:14px">
+            <button class="out-btn download" onclick="downloadJSON('e')">⬇ Scarica JSON</button>
+            <button class="out-btn copy" onclick="copyJSON('e')">📋 Copia</button>
+            <button class="out-btn edit" id="edit-btn-e" onclick="toggleEdit('e')">✏️ Modifica</button>
+            <button class="out-btn save" id="save-btn-e" onclick="saveEdit('e')">💾 Salva modifiche</button>
+          </div>
+
+          <div class="json-viewer" id="json-view-e">—</div>
+
+          <div class="alert success show" style="margin-top:14px">
+            ✅ JSON pronto — usa il pulsante <strong>"⬆ Importa Elettrica AI"</strong> nel tool be16 per caricarlo.
+          </div>
+        </div>
+
+        <div class="panel" id="placeholder-e" style="background:var(--grigio-bg);border-style:dashed;text-align:center;padding:48px 24px">
+          <div style="font-size:40px;margin-bottom:12px">📊</div>
+          <div style="font-size:14px;font-weight:700;color:var(--grigio-medio);margin-bottom:6px">Il JSON comparirà qui</div>
+          <div style="font-size:12px;color:var(--grigio-bordo)">Carica la bolletta e premi "Genera JSON Elettrico"</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tab-pane" id="pane-fossile">
+
+    <div class="step-indicator" id="steps-foss">
+      <div class="step-item active foss" id="step-f1"><span class="step-num">1</span>Combustibile</div>
+      <div class="step-item" id="step-f2"><span class="step-num">2</span>Carica PDF</div>
+      <div class="step-item" id="step-f3"><span class="step-num">3</span>Note & Istruzioni</div>
+      <div class="step-item" id="step-f4"><span class="step-num">4</span>Anteprima & Genera</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="panel" id="panel-input-f">
+          <h3 class="orange">🔥 Tipo di Combustibile</h3>
+
+          <div style="margin-bottom:20px">
+            <div class="section-label">Seleziona il tipo di combustibile</div>
+            <div class="tipo-combustibile-pills">
+              <button class="fuel-pill active" data-fuel="metano" onclick="selectFuel('metano')">🔵 Metano (gas rete)</button>
+              <button class="fuel-pill" data-fuel="gpl" onclick="selectFuel('gpl')">🟠 GPL (cisterna/bombole)</button>
+              <button class="fuel-pill" data-fuel="gpl-litri" onclick="selectFuel('gpl-litri')">🟡 GPL (litri)</button>
+              <button class="fuel-pill" data-fuel="gasolio" onclick="selectFuel('gasolio')">⚫ Gasolio</button>
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="upload-section">
+            <div class="section-label">File bolletta fossile (PDF)</div>
+            <div class="upload-zone fossile-zone" id="upload-f" onclick="document.getElementById('file-f').click()">
+              <input type="file" id="file-f" accept=".pdf,.png,.jpg,.jpeg" onchange="onFileFoss(this)">
+              <div class="upload-default">
+                <span class="upload-icon">🔥</span>
+                <div class="upload-title">Trascina il PDF della bolletta gas/fossile</div>
+                <div class="upload-sub">oppure clicca per selezionare · PDF, PNG, JPG · max 5 MB</div>
+              </div>
+              <div class="upload-filename" id="filename-f">—</div>
+            </div>
+            <button class="clear-file-btn" id="clear-f" onclick="clearFile('f')">🗑 Rimuovi file e carica un'altra bolletta</button>
+            <div class="size-warning" id="size-warn-f"></div>
+          </div>
+
+          <div class="note-field">
+            <label>📝 Note e istruzioni per l'AI</label>
+            <textarea id="note-f" class="fossile" placeholder="Es: Bolletta GPL Trivengas — convertire in metano-equivalente con PCI GPL = 25,78 kWh/Sm³ e PCI metano = 9,4 kWh/Sm³.&#10;&#10;Es: Periodo semestrale → annualizzare ×2.&#10;&#10;Es: Usare solo l'imponibile netto IVA per il prezzo."></textarea>
+            <div class="note-hint">Specifica: combustibile, periodo, eventuali conversioni, avvertenze sul prezzo.</div>
+            <div class="note-examples">
+              <span class="note-chip fossile" onclick="addChip('f','GPL Trivengas — PCI = 25,78 kWh/Sm³')">GPL Trivengas</span>
+              <span class="note-chip fossile" onclick="addChip('f','Periodo semestrale → annualizzare ×2')">Annualizza ×2</span>
+              <span class="note-chip fossile" onclick="addChip('f','Usare solo imponibile netto IVA')">Netto IVA</span>
+              <span class="note-chip fossile" onclick="addChip('f','Gasolio → usare fattore 10 kWh/litro')">Gasolio</span>
+              <span class="note-chip fossile" onclick="addChip('f','GPL in litri → usare fattore 0,55 kg/litro')">GPL litri</span>
+            </div>
+          </div>
+
+          <button class="generate-btn fossile-btn" id="btn-gen-f" onclick="generateFoss()" disabled>
+            <span>🔥</span> Genera JSON Fossile
+          </button>
+
+          <div class="progress-wrap" id="prog-f">
+            <div class="progress-bar"><div class="progress-fill fossile" id="pbar-f"></div></div>
+            <div class="progress-label" id="plab-f">Analisi AI in corso…</div>
+          </div>
+
+          <div class="ai-loading" id="aiload-f">
+            <div class="ai-spinner" style="animation-duration:.9s">🔥</div>
+            <div class="ai-loading-text">L'AI sta analizzando la bolletta fossile…</div>
+            <div class="ai-loading-sub">Conversione energetica inclusa · 20-40 secondi</div>
+          </div>
+
+          <div class="alert" id="alert-f"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="conv-panel" id="conv-panel">
+          <div class="conv-panel-title">
+            <span>🔄 Anteprima Conversione Energetica</span>
+            <span style="font-size:9px;background:rgba(211,84,0,.1);padding:2px 8px;border-radius:6px" id="conv-tipo-label">GPL Sm³</span>
+          </div>
+
+          <div class="conv-grid">
+            <div class="conv-field">
+              <label>Consumo reale annuo</label>
+              <div class="conv-field-wrapper">
+                <input class="conv-input" type="number" id="cv-consumo" placeholder="0" oninput="calcConv()">
+                <span class="conv-unit" id="cv-consumo-unit">Sm³/a</span>
+                <button class="lock-btn" id="lock-consumo" title="Sblocca per modificare" onclick="toggleLock('consumo')">🔒</button>
+              </div>
+            </div>
+            <div class="conv-field">
+              <label>Spesa netto IVA annua</label>
+              <div class="conv-field-wrapper">
+                <input class="conv-input" type="number" id="cv-spesa" placeholder="0" oninput="calcConv()">
+                <span class="conv-unit">€/a</span>
+                <button class="lock-btn" id="lock-spesa" title="Sblocca per modificare" onclick="toggleLock('spesa')">🔒</button>
+              </div>
+            </div>
+            <div class="conv-field">
+              <label id="cv-pci-label">PCI combustibile</label>
+              <div class="conv-field-wrapper">
+                <input class="conv-input" type="number" id="cv-pci" value="25.78" readonly oninput="calcConv()">
+                <span class="conv-unit" id="cv-pci-unit">kWh/Sm³</span>
+                <button class="lock-btn" id="lock-pci" onclick="toggleLock('pci')">🔒</button>
+              </div>
+            </div>
+            <div class="conv-field">
+              <label>PCI metano (riferimento)</label>
+              <div class="conv-field-wrapper">
+                <input class="conv-input" type="number" id="cv-pci-met" value="9.4" readonly oninput="calcConv()">
+                <span class="conv-unit">kWh/Sm³</span>
+                <button class="lock-btn" id="lock-pci-met" onclick="toggleLock('pci-met')">🔒</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="conv-result-box">
+            <div class="conv-result-title">Risultati Conversione → Metano Equivalente</div>
+            <div class="conv-result-grid">
+              <div class="conv-kpi">
+                <div class="kv" id="cv-energia">—</div>
+                <div class="kl">kWh termici/anno</div>
+              </div>
+              <div class="conv-kpi">
+                <div class="kv" id="cv-sm3-eq">—</div>
+                <div class="kl">Sm³ metano eq. (gas_sm3)</div>
+              </div>
+              <div class="conv-kpi">
+                <div class="kv" id="cv-pgas-eq">—</div>
+                <div class="kl">€/Sm³ metano eq. (p_gas)</div>
+              </div>
+              <div class="conv-kpi ok">
+                <div class="kv" id="cv-check-costo">—</div>
+                <div class="kl">Verifica costo totale (€/a)</div>
+              </div>
+            </div>
+            <div class="conv-formula" id="cv-formula-box">
+              Inserisci consumo e spesa per calcolare la conversione.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="output-panel-f" style="display:none">
+          <h3 class="orange">📦 JSON Generato — Fossile</h3>
+
+          <div class="note-estrazione-box fossile-ne" id="note-estratta-f">
+            <div class="ne-title">📋 Note di estrazione AI</div>
+            <div class="ne-body" id="note-estratta-f-body"></div>
+          </div>
+
+          <div class="output-actions" style="margin-bottom:14px">
+            <button class="out-btn download" onclick="downloadJSON('f')" style="background:var(--arancio);border-color:var(--arancio-dark)">⬇ Scarica JSON</button>
+            <button class="out-btn copy" onclick="copyJSON('f')">📋 Copia</button>
+            <button class="out-btn edit" id="edit-btn-f" onclick="toggleEdit('f')">✏️ Modifica</button>
+            <button class="out-btn save" id="save-btn-f" onclick="saveEdit('f')">💾 Salva modifiche</button>
+          </div>
+
+          <div class="json-viewer" id="json-view-f">—</div>
+
+          <div class="alert success show" style="margin-top:14px">
+            ✅ JSON pronto — usa il pulsante <strong>"🔥 Importa Gas AI"</strong> nel tool be16 per caricarlo.
+          </div>
+        </div>
+
+        <div class="panel" id="placeholder-f" style="background:var(--grigio-bg);border-style:dashed;text-align:center;padding:48px 24px">
+          <div style="font-size:40px;margin-bottom:12px">🔥</div>
+          <div style="font-size:14px;font-weight:700;color:var(--grigio-medio);margin-bottom:6px">Il JSON fossile comparirà qui</div>
+          <div style="font-size:12px;color:var(--grigio-bordo)">Seleziona combustibile, carica la bolletta e premi "Genera JSON Fossile"</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+var state = {
+  fileEb64: null, fileEtype: null, fileEname: null,
+  fileFb64: null, fileFtype: null, fileFname: null,
+  jsonE: null, jsonF: null,
+  fuel: 'metano',
+  clienteE: '', clienteF: '',
+  busy: false,
+  locks: { consumo: false, spesa: false, pci: true, 'pci-met': true }
+};
+
+var FUEL_CFG = {
+  metano:     { label:'Metano (gas rete)', unit:'Sm³/a', pci: 9.4,  pci_unit:'kWh/Sm³', show_conv:false },
+  gpl:        { label:'GPL Sm³',           unit:'Sm³/a', pci:25.78, pci_unit:'kWh/Sm³', show_conv:true },
+  'gpl-litri':{ label:'GPL Litri',         unit:'L/a',   pci:6.84,  pci_unit:'kWh/L',   show_conv:true },
+  gasolio:    { label:'Gasolio',           unit:'L/a',   pci:10.0,  pci_unit:'kWh/L',   show_conv:true }
+};
+var PCI_METANO = 9.4;
+var MAX_FILE_SIZE = 5 * 1024 * 1024;
+var ALLOWED_TYPES = ['application/pdf','image/png','image/jpeg','image/jpg'];
+
+function showToast(msg, dur) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block'; t.style.opacity='1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.style.display='none'; },300); }, dur||2800);
+}
+
+function setAlert(id, type, msg) {
+  var el = document.getElementById('alert-'+id);
+  el.className = 'alert ' + type + ' show';
+  el.innerHTML = msg;
+}
+function clearAlert(id){ document.getElementById('alert-'+id).className='alert'; }
+
+function setProgress(id, pct, label) {
+  document.getElementById('prog-'+id).className='progress-wrap show';
+  document.getElementById('pbar-'+id).style.width = pct+'%';
+  document.getElementById('plab-'+id).textContent = label;
+}
+function hideProgress(id){ document.getElementById('prog-'+id).className='progress-wrap'; }
+function setAILoading(id, show) { document.getElementById('aiload-'+id).className = 'ai-loading' + (show?' show':''); }
+
+function updateStep(which, n) {
+  var prefix = which==='e' ? 'step-e' : 'step-f';
+  var cls = which==='e' ? 'elec' : 'foss';
+  for(var i=1;i<=4;i++){
+    var el = document.getElementById(prefix+i);
+    if(!el) continue;
+    if(i < n) { el.className='step-item done'; el.querySelector('.step-num').textContent='✓'; }
+    else if(i===n) { el.className='step-item active '+cls; el.querySelector('.step-num').textContent=String(i); }
+    else { el.className='step-item'; el.querySelector('.step-num').textContent=String(i); }
+  }
+}
+
+function lockControlsDuringAI(which, busy) {
+  state.busy = busy;
+  var ids = which==='e' ? ['btn-gen-e'] : ['btn-gen-f'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.disabled = busy || (which==='e' ? !state.fileEb64 : !state.fileFb64);
+  });
+  var selector = which==='f' ? '.fuel-pill, .lock-btn, .note-chip.fossile, #clear-f' : '.note-chip:not(.fossile), #clear-e';
+  document.querySelectorAll(selector).forEach(function(el){
+    if(busy) el.classList.add('disabled-overlay');
+    else el.classList.remove('disabled-overlay');
+  });
+}
+
+function getTodayStr() {
+  var d = new Date();
+  var dd = String(d.getDate()).padStart(2,'0');
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var yyyy = d.getFullYear();
+  return dd+'-'+mm+'-'+yyyy;
+}
+function getTodayDisplay() {
+  var d = new Date();
+  var dd = String(d.getDate()).padStart(2,'0');
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var yyyy = d.getFullYear();
+  return dd+'/'+mm+'/'+yyyy;
+}
+
+function fmt2(v){ return isNaN(v)||!isFinite(v)?'—':v.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt0(v){ return isNaN(v)||!isFinite(v)?'—':Math.round(v).toLocaleString('it-IT'); }
+
+function toBase64(file, cb) {
+  var reader = new FileReader();
+  reader.onload = function(e){ cb(e.target.result.split(',')[1], file.type); };
+  reader.readAsDataURL(file);
+}
+
+function validateFile(file) {
+  if(!ALLOWED_TYPES.includes(file.type)) {
+    return { ok:false, msg:'⚠️ Formato non supportato. Usa PDF, PNG o JPG.' };
+  }
+  if(file.size > MAX_FILE_SIZE) {
+    var mb = Math.round(file.size/1024/1024*10)/10;
+    return { ok:false, msg:'⚠️ File troppo grande (' + mb + ' MB). La dimensione massima è 5 MB.' };
+  }
+  return { ok:true };
+}
+
+function onFileElec(input) {
+  var file = input.files[0]; if(!file) return;
+  var v = validateFile(file);
+  var warnEl = document.getElementById('size-warn-e');
+  if(!v.ok) {
+    warnEl.textContent = v.msg; warnEl.className = 'size-warning show';
+    input.value = ''; return;
+  }
+  warnEl.className = 'size-warning';
+  state.fileEb64 = null; state.fileEname = file.name;
+  var zone = document.getElementById('upload-e');
+  zone.classList.add('has-file');
+  document.getElementById('filename-e').textContent = '📄 ' + file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+  document.getElementById('btn-gen-e').disabled = false;
+  document.getElementById('clear-e').className = 'clear-file-btn show';
+  toBase64(file, function(b64, mime){ state.fileEb64=b64; state.fileEtype=mime; });
+  updateStep('e',2);
+  showToast('Bolletta caricata: ' + file.name);
+}
+
+function onFileFoss(input) {
+  var file = input.files[0]; if(!file) return;
+  var v = validateFile(file);
+  var warnEl = document.getElementById('size-warn-f');
+  if(!v.ok) {
+    warnEl.textContent = v.msg; warnEl.className = 'size-warning show';
+    input.value = ''; return;
+  }
+  warnEl.className = 'size-warning';
+  state.fileFb64 = null; state.fileFname = file.name;
+  var zone = document.getElementById('upload-f');
+  zone.classList.add('has-file');
+  document.getElementById('filename-f').textContent = '📄 ' + file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+  document.getElementById('btn-gen-f').disabled = false;
+  document.getElementById('clear-f').className = 'clear-file-btn show';
+  toBase64(file, function(b64, mime){ state.fileFb64=b64; state.fileFtype=mime; });
+  updateStep('f',3);
+  showToast('Bolletta fossile caricata: ' + file.name);
+}
+
+function clearFile(which) {
+  if(state.busy) return;
+  if(which==='e') {
+    state.fileEb64=null; state.fileEtype=null; state.fileEname=null; state.jsonE=null; state.clienteE='';
+    document.getElementById('upload-e').classList.remove('has-file');
+    document.getElementById('filename-e').textContent='—';
+    document.getElementById('file-e').value='';
+    document.getElementById('btn-gen-e').disabled=true;
+    document.getElementById('clear-e').className='clear-file-btn';
+    document.getElementById('size-warn-e').className='size-warning';
+    document.getElementById('output-panel-e').style.display='none';
+    document.getElementById('placeholder-e').style.display='';
+    clearAlert('e'); hideProgress('e');
+    updateStep('e',1);
+  } else {
+    state.fileFb64=null; state.fileFtype=null; state.fileFname=null; state.jsonF=null; state.clienteF='';
+    document.getElementById('upload-f').classList.remove('has-file');
+    document.getElementById('filename-f').textContent='—';
+    document.getElementById('file-f').value='';
+    document.getElementById('btn-gen-f').disabled=true;
+    document.getElementById('clear-f').className='clear-file-btn';
+    document.getElementById('size-warn-f').className='size-warning';
+    document.getElementById('output-panel-f').style.display='none';
+    document.getElementById('placeholder-f').style.display='';
+    clearAlert('f'); hideProgress('f');
+    updateStep('f',1);
+  }
+  showToast('File rimosso. Carica una nuova bolletta.');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelector('.tab-btn.'+tab).classList.add('active');
+  document.getElementById('pane-'+tab).classList.add('active');
+}
+
+function selectFuel(fuel) {
+  if(state.busy) return;
+  state.fuel = fuel;
+  document.querySelectorAll('.fuel-pill').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelector('[data-fuel="'+fuel+'"]').classList.add('active');
+  var cfg = FUEL_CFG[fuel];
+  document.getElementById('cv-consumo-unit').textContent = cfg.unit;
+  document.getElementById('cv-pci-label').textContent = 'PCI combustibile (' + fuel.toUpperCase() + ')';
+  document.getElementById('cv-pci-unit').textContent = cfg.pci_unit;
+  setLockedField('cv-pci', cfg.pci, state.locks.pci);
+  document.getElementById('conv-tipo-label').textContent = cfg.label;
+  var panel = document.getElementById('conv-panel');
+  if(cfg.show_conv) { panel.classList.add('show'); updateStep('f',2); }
+  else { panel.classList.remove('show'); }
+  calcConv();
+}
+
+function setLockedField(id, val, locked) {
+  var el = document.getElementById(id);
+  el.value = val;
+  el.readOnly = locked;
+}
+
+function toggleLock(field) {
+  if(state.busy) return;
+  state.locks[field] = !state.locks[field];
+  var inp = document.getElementById('cv-'+field);
+  var btn = document.getElementById('lock-'+field);
+  inp.readOnly = state.locks[field];
+  btn.textContent = state.locks[field] ? '🔒' : '🔓';
+  if(!state.locks[field]) inp.focus();
+}
+
+function calcConv() {
+  var consumo = parseFloat(document.getElementById('cv-consumo').value) || 0;
+  var spesa   = parseFloat(document.getElementById('cv-spesa').value)   || 0;
+  var pci     = parseFloat(document.getElementById('cv-pci').value)     || FUEL_CFG[state.fuel].pci;
+  var pci_met = parseFloat(document.getElementById('cv-pci-met').value) || PCI_METANO;
+  var fuel    = state.fuel;
+
+  var energia=0, sm3eq=0, pgas=0, checkCosto=0, formulaTxt='';
+
+  if(fuel==='metano') {
+    energia = consumo * pci_met;
+    sm3eq   = consumo;
+    pgas    = spesa>0 && consumo>0 ? spesa/consumo : 0;
+    checkCosto = sm3eq * pgas;
+    formulaTxt = '<strong>METANO — nessuna conversione necessaria</strong><br>gas_sm3 = ' + fmt0(sm3eq) + ' Sm³/a · p_gas = ' + fmt2(pgas) + ' €/Sm³';
+  } else {
+    energia  = consumo * pci;
+    sm3eq    = pci_met>0 ? energia / pci_met : 0;
+    pgas     = sm3eq>0 ? spesa/sm3eq : 0;
+    checkCosto = sm3eq * pgas;
+    var lbl = FUEL_CFG[fuel].label;
+    var unitLbl = FUEL_CFG[fuel].unit.split('/')[0];
+    formulaTxt = '<strong>' + lbl + ' → metano equivalente</strong><br>'
+      + '① Energia termica = ' + fmt0(consumo) + ' ' + unitLbl + ' × ' + pci + ' ' + FUEL_CFG[fuel].pci_unit + ' = <strong>' + fmt0(energia) + ' kWh/a</strong><br>'
+      + '② Sm³ metano eq. = ' + fmt0(energia) + ' / ' + pci_met + ' = <strong>' + fmt0(sm3eq) + ' Sm³/a</strong><br>'
+      + '③ p_gas eq. = ' + fmt2(spesa) + ' € / ' + fmt0(sm3eq) + ' Sm³ = <strong>' + fmt2(pgas) + ' €/Sm³</strong><br>'
+      + '④ Verifica: ' + fmt0(sm3eq) + ' × ' + fmt2(pgas) + ' = <strong>' + fmt2(checkCosto) + ' €/a</strong>';
+  }
+
+  document.getElementById('cv-energia').textContent  = consumo>0 ? fmt0(energia) : '—';
+  document.getElementById('cv-sm3-eq').textContent   = consumo>0 ? fmt0(sm3eq)   : '—';
+  document.getElementById('cv-pgas-eq').textContent  = consumo>0 ? fmt2(pgas)    : '—';
+  document.getElementById('cv-check-costo').textContent = consumo>0 && spesa>0 ? fmt2(checkCosto)+' €' : '—';
+  document.getElementById('cv-formula-box').innerHTML = consumo>0 ? formulaTxt : 'Inserisci consumo e spesa per calcolare la conversione.';
+
+  state.convCalc = { energia:energia, sm3eq:sm3eq, pgas:pgas, pci:pci, pci_met:pci_met, spesa:spesa, consumo:consumo };
+}
+
+function addChip(which, text) {
+  var ta = document.getElementById('note-'+which);
+  var cur = ta.value.trim();
+  ta.value = cur ? cur + '\n' + text : text;
+  ta.focus();
+}
+
+function extractJSON(raw) {
+  var t = raw.replace(/```json|```/gi,'').trim();
+  var s = t.indexOf('{');
+  var e = t.lastIndexOf('}');
+  if(s !== -1 && e !== -1 && e > s) t = t.slice(s, e+1);
+  return t;
+}
+
+// URL del Cloudflare Worker proxy — sostituisci con il tuo URL dopo il deploy
+var PROXY_URL = 'https://lingering-surf-a1ef.luiginotesser.workers.dev';
+
+function callAI(systemPrompt, messages, cb) {
+  fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, system: systemPrompt, messages: messages })
+  })
+  .then(function(r){
+    if(!r.ok) return r.json().then(function(e){ throw new Error(e.error&&e.error.message ? e.error.message : 'HTTP '+r.status); });
+    return r.json();
+  })
+  .then(function(data) {
+    if(data.error) { cb(data.error.message || JSON.stringify(data.error)); return; }
+    var text = (data.content||[]).filter(function(b){ return b.type==='text'; }).map(function(b){ return b.text; }).join('');
+    cb(null, text);
+  })
+  .catch(function(err){ cb(err.message || 'Errore di rete — riprovare'); });
+}
+function generateElec() {
+  if(!state.fileEb64) { setAlert('e','error','⚠️ Carica prima la bolletta elettrica.'); return; }
+  if(state.busy) return;
+  lockControlsDuringAI('e', true);
+  clearAlert('e');
+  setAILoading('e', true);
+  setProgress('e', 10, 'Invio bolletta all\'AI…');
+  updateStep('e', 3);
+
+  var note = document.getElementById('note-e').value.trim();
+  var noteExtra = note ? '\n\nISTRUZIONI AGGIUNTIVE DELL\'OPERATORE:\n' + note : '';
+
+  var systemPrompt = `Sei un esperto di bollette energetiche italiane. Analizza la bolletta elettrica e genera ESCLUSIVAMENTE un oggetto JSON valido compatibile con il Bilancio Energetico be16.
+
+REGOLE OBBLIGATORIE:
+1. Rispetta ESATTAMENTE i nomi dei campi (underscore, non trattini).
+2. Tutti i valori numerici usano il PUNTO come separatore decimale (non virgola).
+3. Il campo p_f1, p_f2_cost, p_f3 devono essere il PREZZO MEDIO REALE netto IVA:
+   p_kwh = (totale_bolletta_netto_IVA) / kWh_totali
+   Il totale INCLUDE: energia, trasporto, distribuzione, oneri, quota fissa, accise.
+   Il totale ESCLUDE: IVA, mora, depositi.
+4. Se presenti più POD: aggrega solo quelli indicati nelle istruzioni operatore.
+5. Se la bolletta non separa F1/F2/F3: usa split 50%/20%/30%.
+6. Se il periodo è parziale: annualizza proporzionalmente.
+
+OUTPUT: rispondi SOLO con l'oggetto JSON grezzo. Zero testo discorsivo, zero markdown, zero spiegazioni prima o dopo. La risposta deve iniziare direttamente con il carattere {.
+
+Struttura esatta richiesta:
+{
+  "cliente": "RAGIONE SOCIALE",
+  "schema": "Bilancio Energetico be16",
+  "note_estrazione": {
+    "fonte": "Fornitore — N.Fattura, data, periodo",
+    "pod_inclusi": ["POD — indirizzo — potenza kW — consumo kWh"],
+    "pod_esclusi": ["POD esclusi"],
+    "criterio_prezzo": "descrizione calcolo prezzo"
+  },
+  "inputs": {
+    "e_f1": 0, "e_f2": 0, "e_f3": 0,
+    "p_f1": 0.000, "p_f2_cost": 0.000, "p_f3": 0.000,
+    "p_pot_cost": 0.00, "ps_kw": 0, "dlav": 260,
+    "auto_size": true, "kwp": 0, "kwp_integrativo": 0,
+    "y_spec": 1050, "k_ott": 0.9,
+    "batt_kwh": 0, "cicli": 300, "storage_destination": "macchinari",
+    "p_rid": 0.075, "p_cer": 0.110, "p_wb": 0.08,
+    "ev_day_n": 0, "ev_day_km": 20000, "ev_day_tipo": "auto",
+    "ev_night_n": 0, "ev_night_km": 20000, "ev_night_tipo": "auto",
+    "p_carburante": 2.0, "cons_fossile": 8, "cons_ev": 20
+  }
+}`;
+
+  var userMsg = 'Analizza questa bolletta elettrica e genera il JSON be16. Ricorda: SOLO il JSON grezzo, la risposta deve iniziare con {.' + noteExtra;
+
+  var messages = [{
+    role: 'user',
+    content: [
+      {
+        type: state.fileEtype === 'application/pdf' ? 'document' : 'image',
+        source: { type: 'base64', media_type: state.fileEtype === 'application/pdf' ? 'application/pdf' : state.fileEtype, data: state.fileEb64 }
+      },
+      { type: 'text', text: userMsg }
+    ]
+  }];
+
+  setProgress('e', 30, 'AI sta leggendo la bolletta…');
+
+  callAI(systemPrompt, messages, function(err, result) {
+    setAILoading('e', false);
+    lockControlsDuringAI('e', false);
+    if(err) {
+      hideProgress('e');
+      setAlert('e','error','❌ Errore AI: ' + err);
+      updateStep('e',2);
+      return;
+    }
+    setProgress('e', 90, 'Parsing JSON…');
+    try {
+      var clean = extractJSON(result);
+      var parsed = JSON.parse(clean);
+      state.jsonE = parsed;
+      state.clienteE = parsed.cliente || 'Cliente';
+      renderJSON('e', parsed);
+      hideProgress('e');
+      updateStep('e',4);
+      setAlert('e','success','✅ JSON generato con successo!');
+    } catch(ex) {
+      hideProgress('e');
+      setAlert('e','error','⚠️ L\'AI ha risposto ma il JSON non è valido. Prova a ricaricare la bolletta.<br><small>'+ex.message+'</small><br><small>Risposta ricevuta (primi 150 caratteri): '+result.substring(0,150)+'…</small>');
+      updateStep('e',2);
+    }
+  });
+}
+
+function generateFoss() {
+  if(!state.fileFb64) { setAlert('f','error','⚠️ Carica prima la bolletta fossile.'); return; }
+  if(state.busy) return;
+  lockControlsDuringAI('f', true);
+  clearAlert('f');
+  setAILoading('f', true);
+  setProgress('f', 10, 'Invio bolletta all\'AI…');
+  updateStep('f', 4);
+
+  var note = document.getElementById('note-f').value.trim();
+  var noteExtra = note ? '\n\nISTRUZIONI AGGIUNTIVE DELL\'OPERATORE:\n' + note : '';
+  var fuel = state.fuel;
+  var cfg = FUEL_CFG[fuel];
+
+  var convInfo = '';
+  if(state.convCalc && state.convCalc.consumo > 0) {
+    convInfo = '\n\nDATI CONVERSIONE PRECALCOLATI (usa questi valori):\n'
+      + '- Consumo reale: ' + state.convCalc.consumo + ' ' + cfg.unit + '\n'
+      + '- Spesa netto IVA: ' + state.convCalc.spesa + ' €/a\n'
+      + '- PCI combustibile: ' + state.convCalc.pci + ' ' + cfg.pci_unit + '\n'
+      + '- Energia termica: ' + Math.round(state.convCalc.energia) + ' kWh/a\n'
+      + '- gas_sm3 equivalente metano: ' + Math.round(state.convCalc.sm3eq) + ' Sm³/a\n'
+      + '- p_gas equivalente metano: ' + state.convCalc.pgas.toFixed(4) + ' €/Sm³';
+  }
+
+  var caseInstructions = {
+    metano: 'CASO A — METANO: gas_sm3 = consumo Sm³/anno. p_gas = imponibile/Sm³.',
+    gpl: 'CASO B — GPL Sm³: converti in metano-equivalente: energia=Sm³×25.78; gas_sm3=energia/9.4; p_gas=spesa/gas_sm3.',
+    'gpl-litri': 'CASO C — GPL LITRI: energia=litri×6.84 kWh/L; gas_sm3=energia/9.4; p_gas=spesa/gas_sm3.',
+    gasolio: 'CASO D — GASOLIO: energia=litri×10.0 kWh/L; gas_sm3=energia/9.4; p_gas=spesa/gas_sm3.'
+  };
+
+  var systemPrompt = `Sei un esperto di bollette energetiche italiane. Analizza la bolletta gas/fossile e genera ESCLUSIVAMENTE un oggetto JSON valido per il Bilancio Energetico be16.
+
+TIPO COMBUSTIBILE: ${cfg.label.toUpperCase()}
+${caseInstructions[fuel]}
+
+REGOLE:
+1. Rispetta ESATTAMENTE i nomi dei campi.
+2. Punto decimale (non virgola) per i numeri.
+3. p_gas = imponibile_netto_IVA / Sm3_consumati (per metano) oppure p_gas_equivalente per altri.
+4. Se periodo parziale: annualizza proporzionalmente.
+5. Compila il blocco conversione_gpl con tutti i passaggi (tracciabilità).
+
+OUTPUT: rispondi SOLO con l'oggetto JSON grezzo. Zero testo discorsivo, zero markdown. La risposta deve iniziare direttamente con il carattere {.
+
+Struttura esatta:
+{
+  "cliente": "RAGIONE SOCIALE",
+  "schema": "Bilancio Energetico be16",
+  "note_estrazione": {
+    "fonte": "Fornitore — N.Fattura, data, periodo",
+    "tipo_combustibile": "${fuel}",
+    "criterio_prezzo": "calcolo prezzo",
+    "conversione_gpl": {
+      "gpl_reale_sm3_anno": 0, "pci_gpl_kwh_sm3": 25.78,
+      "energia_termica_kwh_anno": 0, "gas_sm3_equivalente_metano_inserito": 0,
+      "p_gas_equivalente_inserito": 0.000, "spiegazione": "formula usata"
+    }
+  },
+  "inputs_termici": { "gas_sm3": 0, "p_gas": 0.000, "pdc_cop": 3.6, "pdc_attiva": true }
+}`;
+
+  var userMsg = 'Analizza questa bolletta fossile (' + cfg.label + ') e genera il JSON be16. SOLO JSON grezzo, inizia con {.' + noteExtra + convInfo;
+
+  var messages = [{
+    role: 'user',
+    content: [
+      {
+        type: state.fileFtype === 'application/pdf' ? 'document' : 'image',
+        source: { type: 'base64', media_type: state.fileFtype === 'application/pdf' ? 'application/pdf' : state.fileFtype, data: state.fileFb64 }
+      },
+      { type: 'text', text: userMsg }
+    ]
+  }];
+
+  setProgress('f', 30, 'AI sta leggendo la bolletta fossile…');
+
+  callAI(systemPrompt, messages, function(err, result) {
+    setAILoading('f', false);
+    lockControlsDuringAI('f', false);
+    if(err) {
+      hideProgress('f');
+      setAlert('f','error','❌ Errore AI: ' + err);
+      updateStep('f',3);
+      return;
+    }
+    setProgress('f', 90, 'Parsing JSON…');
+    try {
+      var clean = extractJSON(result);
+      var parsed = JSON.parse(clean);
+      state.jsonF = parsed;
+      state.clienteF = parsed.cliente || 'Cliente';
+      renderJSON('f', parsed);
+      hideProgress('f');
+      updateStep('f',4);
+      setAlert('f','success','✅ JSON fossile generato con successo!');
+    } catch(ex) {
+      hideProgress('f');
+      setAlert('f','error','⚠️ L\'AI ha risposto ma il JSON non è valido. Riprova.<br><small>'+ex.message+'</small><br><small>Risposta ricevuta (primi 150 caratteri): '+result.substring(0,150)+'…</small>');
+      updateStep('f',3);
+    }
+  });
+}
+
+
+
+function syntaxHL(json) {
+  var str = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
+  return str
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      function(m) {
+        var cls='json-number';
+        if(/^"/.test(m)){ cls = /:$/.test(m) ? 'json-key' : 'json-string'; }
+        else if(/true|false/.test(m)){ cls='json-bool'; }
+        else if(/null/.test(m)){ cls='json-null'; }
+        return '<span class="'+cls+'">'+m+'</span>';
+      });
+}
+
+function renderJSON(which, parsed) {
+  var viewId = 'json-view-'+which;
+  var panelId = 'output-panel-'+which;
+  var phId   = 'placeholder-'+which;
+  var neId   = 'note-estratta-'+which;
+  var neBody = 'note-estratta-'+which+'-body';
+
+  var jv = document.getElementById(viewId);
+  jv.innerHTML = syntaxHL(parsed);
+  jv.dataset.mode = 'view';
+  document.getElementById(panelId).style.display = 'block';
+  document.getElementById(phId).style.display = 'none';
+  document.getElementById('edit-btn-'+which).style.display = '';
+  document.getElementById('save-btn-'+which).style.display = 'none';
+
+  var ne = parsed.note_estrazione;
+  if(ne) {
+    var html = '';
+    if(ne.fonte) html += '<strong>Fonte:</strong> '+ne.fonte+'<br>';
+    if(ne.pod_inclusi && ne.pod_inclusi.length) html += '<strong>POD inclusi:</strong> '+ne.pod_inclusi.join('; ')+'<br>';
+    if(ne.pod_esclusi && ne.pod_esclusi.length) html += '<strong>POD esclusi:</strong> '+ne.pod_esclusi.join('; ')+'<br>';
+    if(ne.criterio_prezzo) html += '<strong>Prezzo:</strong> '+ne.criterio_prezzo+'<br>';
+    if(ne.tipo_combustibile) html += '<strong>Combustibile:</strong> '+ne.tipo_combustibile+'<br>';
+    if(ne.conversione_gpl && ne.conversione_gpl.spiegazione) html += '<strong>Conversione:</strong> '+ne.conversione_gpl.spiegazione;
+    document.getElementById(neBody).innerHTML = html;
+    document.getElementById(neId).className = (which==='f' ? 'note-estrazione-box fossile-ne show' : 'note-estrazione-box show');
+  }
+}
+
+function buildFilename(which) {
+  var tipo  = which==='e' ? 'Import elettrico' : 'Import fossile';
+  var nome  = which==='e' ? (state.clienteE||'Cliente') : (state.clienteF||'Cliente');
+  var data  = getTodayStr();
+  return tipo + '_' + nome.replace(/\s+/g,'_') + '_' + data + '.json';
+}
+
+function downloadJSON(which) {
+  var json = which==='e' ? state.jsonE : state.jsonF;
+  if(!json){ showToast('Nessun JSON disponibile.'); return; }
+  var jv = document.getElementById('json-view-'+which);
+  if(jv.dataset.mode === 'edit') {
+    try { json = JSON.parse(jv.querySelector('textarea').value); }
+    catch(e){ showToast('⚠️ JSON non valido — salva le modifiche prima di scaricare'); return; }
+  }
+  var blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = buildFilename(which);
+  a.click();
+  showToast('⬇ Scaricato: ' + buildFilename(which));
+}
+
+function copyJSON(which) {
+  var json = which==='e' ? state.jsonE : state.jsonF;
+  if(!json){ showToast('Nessun JSON disponibile.'); return; }
+  var jv = document.getElementById('json-view-'+which);
+  var txt = jv.dataset.mode === 'edit' ? jv.querySelector('textarea').value : JSON.stringify(json, null, 2);
+  navigator.clipboard.writeText(txt).then(function(){ showToast('📋 JSON copiato negli appunti!'); });
+}
+
+function toggleEdit(which) {
+  var jv = document.getElementById('json-view-'+which);
+  var json = which==='e' ? state.jsonE : state.jsonF;
+  if(!json) return;
+  jv.innerHTML = '<textarea spellcheck="false">'+JSON.stringify(json,null,2)+'</textarea>';
+  jv.dataset.mode = 'edit';
+  document.getElementById('edit-btn-'+which).style.display = 'none';
+  document.getElementById('save-btn-'+which).style.display = 'flex';
+  showToast('✏️ Modalità modifica attiva — modifica e premi "Salva modifiche"');
+}
+
+function saveEdit(which) {
+  var jv = document.getElementById('json-view-'+which);
+  var ta = jv.querySelector('textarea');
+  if(!ta) return;
+  try {
+    var parsed = JSON.parse(ta.value);
+    if(which==='e'){ state.jsonE=parsed; state.clienteE=parsed.cliente||state.clienteE; }
+    else{ state.jsonF=parsed; state.clienteF=parsed.cliente||state.clienteF; }
+    renderJSON(which, parsed);
+    showToast('✅ Modifiche salvate!');
+  } catch(ex) {
+    showToast('⚠️ JSON non valido — correggi prima di salvare: ' + ex.message);
+  }
+}
+
+function setupDragDrop(zoneId, inputId, handler) {
+  var zone = document.getElementById(zoneId);
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); if(!zone.classList.contains('has-file')) zone.style.borderColor='#3b82f6'; });
+  zone.addEventListener('dragleave', function(){ zone.style.borderColor=''; });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.style.borderColor='';
+    if(zone.classList.contains('has-file')) return;
+    var files = e.dataTransfer.files;
+    if(files.length){
+      var inp = document.getElementById(inputId);
+      var dt = new DataTransfer();
+      dt.items.add(files[0]);
+      inp.files = dt.files;
+      handler(inp);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  setupDragDrop('upload-e','file-e',onFileElec);
+  setupDragDrop('upload-f','file-f',onFileFoss);
+  selectFuel('metano');
+  document.getElementById('hbadge-date').textContent = getTodayDisplay();
+});
+</script>
+</body>
+</html>
